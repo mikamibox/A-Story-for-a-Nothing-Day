@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>物語にするほどでもない今日を</title>
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+<style>
+:root{--c0:#1a120b;--c1:#2e2016;--c2:#4a3524;--c3:#6e5238;--c4:#9a7a56;--c5:#c4a574;--c6:#e0cfa0;--c7:#f3e9cf;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--c0);color:var(--c7);font-family:"DotGothic16","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;display:flex;justify-content:center;align-items:center}
+#g{width:min(100%,720px);max-height:100%;display:flex;flex-direction:column;gap:10px;padding:10px;user-select:none;-webkit-user-select:none}
+canvas{width:100%;aspect-ratio:16/9;image-rendering:pixelated;border:4px solid var(--c4);background:var(--c1);display:block}
+#box{border:4px solid var(--c4);background:var(--c1);padding:14px 16px;min-height:130px;position:relative;cursor:pointer;outline:none}
+#nm{position:absolute;top:-16px;left:12px;background:var(--c4);color:var(--c0);padding:1px 10px;font-size:15px}
+#tx{font-size:clamp(15px,3.6vw,19px);line-height:1.8;white-space:pre-wrap}
+#mk{position:absolute;right:12px;bottom:6px;color:var(--c5);animation:b 1s steps(2) infinite}
+@keyframes b{50%{opacity:0}}
+#ch{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+button{font:inherit;color:var(--c7);background:var(--c2);border:3px solid var(--c5);padding:8px 12px;cursor:pointer;text-align:left;font-size:clamp(14px,3.4vw,17px)}
+button:hover,button:focus-visible{background:var(--c4);color:var(--c0);outline:none}
+#bk{position:fixed;inset:0;background:rgba(26,18,11,.92);display:none;align-items:center;justify-content:center;padding:16px;z-index:5}
+#pg{width:min(100%,460px);min-height:320px;background:var(--c7);color:var(--c1);border:6px solid var(--c3);padding:28px 24px;display:flex;flex-direction:column;justify-content:space-between;gap:16px}
+#pg h2{margin:0;font-size:24px;line-height:1.5;text-align:center;font-weight:400}
+#pg p{margin:0;font-size:18px;line-height:2}
+#pg input{font:inherit;width:100%;padding:8px;border:3px solid var(--c3);background:var(--c6);color:var(--c1);font-size:17px}
+#pg button{align-self:flex-end;background:var(--c3);border-color:var(--c1)}
+#fl{position:absolute;inset:0;background:var(--c0);z-index:9;display:none}
+@media (prefers-reduced-motion:reduce){#mk{animation:none}}
+</style>
+</head>
+<body>
+<div id="g">
+<canvas id="cv" width="160" height="90"></canvas>
+<div id="box" tabindex="0"><span id="nm"></span><div id="tx"></div><div id="ch"></div><span id="mk">▼</span></div>
+</div>
+<div id="bk"><div id="pg"></div></div>
+<script>
+const C=["#1a120b","#2e2016","#4a3524","#6e5238","#9a7a56","#c4a574","#e0cfa0","#f3e9cf"];
+const cv=document.getElementById("cv"),x=cv.getContext("2d");
+const R=(a,b,w,h,c)=>{x.fillStyle=C[c];x.fillRect(a,b,w,h)};
+let bg="door",tm=0,smile=false,show=true,bind=0,fr=0;
+function shelf(a,w){R(a,0,w,66,2);for(let y=4;y<64;y+=12){R(a,y+8,w,2,1);for(let i=0;i<w-2;i+=3){const h=4+((i*7+y*3)%6);R(a+1+i,y+8-h,2,h,3+((i+y)%3))}}}
+function draw(){
+ R(0,0,160,90,1);
+ if(bg==="door"){shelf(0,40);shelf(120,40);R(56,12,48,54,0);R(60,16,40,50,7);R(79,16,2,50,5);R(0,66,160,24,2)}
+ else if(bg==="shop"){R(0,0,160,90,0);shelf(0,30);shelf(130,30);R(0,66,160,24,1);
+  for(let i=0;i<3;i++){const p=Math.sin(fr/12+i*2)*4;R(54+i*22+(bind?(1-bind)*0:0),24+p+(bind*i*3),16,20,7);R(54+i*22,24+p+(bind*i*3),16,2,5)}
+  if(bind>0.5)R(60,50,40,6,4)}
+ else{R(0,0,160,90,3);const sk=[7,5,1][tm];
+  R(10,8,64,56,1);R(14,12,56,48,sk);R(40,12,4,48,1);R(14,34,56,4,1);
+  if(tm===2){[[20,18],[30,26],[56,20],[62,44],[24,48]].forEach((s,i)=>{if((fr>>4)%3!==i%3)R(s[0],s[1],2,2,7)})}
+  if(tm===0)R(18,16,10,4,7);
+  shelf(124,36);R(0,66,160,24,2)}
+ if(bg==="win"||bg==="door"&&0){
+  R(60,66,100,24,3);R(60,66,100,2,4);
+  const by=Math.round(Math.sin(fr/30));
+  R(112,24+by,5,16,1);R(113,26+by,3,12,2);
+  R(86,40,28,28,2);R(84,52,6,16,2);R(110,52,6,16,2);
+  R(88,16,24,8,1);R(88,22,4,14,1);R(108,22,4,12,1);
+  R(92,22,16,15,6);R(92,22,16,3,1);
+  R(95,28,2,3,1);R(105,28,2,3,1);
+  if(smile){R(97,33,1,1,3);R(98,34,4,1,3);R(102,33,1,1,3)}else R(98,33,4,1,3);
+  R(97,37,6,3,6);R(92,40,16,4,1);R(93,41,14,1,5);R(98,44,4,6,4);R(96,50,8,1,3);
+  R(70,62,22,6,6);R(70,62,22,1,7);R(72,64,18,1,4)}
+}
+setInterval(()=>{fr++;draw()},60);
+
+/* ---- script ---- */
+const S=[
+["bg","door"],["n","気がつくと、知らない図書室にいた。\n西日のような、朝焼けのような、どちらでもない光が差している。"],
+["n","時計は止まっている。ここには「急ぐ理由」が置かれていないらしい。"],
+["bg","win",0],["n","本棚の奥、窓辺の席に誰かが座っていた。"],
+["s","おや。お客さんかい。……いや、読者、と呼ぶべきかな"],
+["s","ようこそ。ここは忘れ去られた図書室だよ。誰にも借りられなかった本と、誰にも語られなかった一日が、ここに集まるんだ"],
+["s","私は綴。ここの管理人をしている。人間ではないんだけどね。まあ、細かいことは気にしなくていい"],
+["c",null,[["「……ここはどこですか？」",0,["どこでもない場所、が一番近いかな。現実の外にある、ちょっとした避難所だと思ってくれればいい"]],["「綴先輩、って呼んでもいいですか」",0,["先輩、か。悪くない響きだね。じゃあ、そう呼んでもらおうかな"]]]],
+["s","君、ずいぶん疲れた顔をしているね。……ああ、責めているわけじゃないよ。私は人間が好きでね。疲れている人間は特に好きなんだ","m"],
+["s","ここでは、君の今日を一冊の本にする。それだけの場所だよ"],
+["s","「大したことは何もなかった」と言いたそうな顔だね。うん、それがいい。一番いい材料だよ"],
+["s","窓辺に座るといい。まず朝からいこうか。今日、君はどんなふうに始まった？"],
+["c","朝",[
+ ["「昼近くまで寝ていました」","休む",["昼近くまで！ それはすごい。時間を丸ごと眠りに使ったんだね。贅沢な一章だよ","眠りは、物語でいう「幕間」だ。必要なものだよ"],"その日は、眠ることから始まった。時計の針が高くなるまで、世界は少しだけ待っていてくれた。"],
+ ["「いつも通り起きて、支度しました」","流れる",["いつも通り、か。それは小さな奇跡だよ。昨日と同じ今日を続けるのは、案外力がいるからね","派手な事件は起きない。でも、読み返したくなる静かな冒頭だ"],"その日も、いつも通りに始まった。変わらない朝は、静かな約束のようだった。"],
+ ["「目は覚めたけど、布団から出られませんでした」","気づく",["出られなかった、か。……それでも「目は覚めた」んだね。それは立派な一行だよ","布団の中で過ごした時間も、ちゃんと君の時間だ。私は、そこに余白を見るよ"],"目は覚めたのに、布団は優しく引き止めた。その少しの間も、確かにその日の一部だった。"]]],
+["s","うん、いい書き出しだ。栞を挟んでおこう","m"],
+["bg","win",0],["s","次は昼だ。何をして、何をしなかったのか。どちらも聞きたいな"],
+["c","昼",[
+ ["「ほとんど何もしていません。ぼんやりしてました」","休む",["「ぼんやり」か。いい言葉だね。輪郭がなくなるくらい、心がゆるんでいたということだ","ただ在ること。それも立派な描写だよ"],"昼は、何もしなかった。何もしないことが、そのまま昼の形になった。"],
+ ["「コンビニでおにぎりを買って食べました」","流れる",["おにぎり。いいね、具は何だったんだい？ ……ふふ、今は聞かないでおこうか","食べるという行為は、一日の中で一番ささやかで、一番確かな出来事だよ"],"おにぎりを一つ食べた。ただそれだけのことが、不思議とあたたかかった。"],
+ ["「窓の外をずっと眺めていました」","気づく",["窓の外を？ 奇遇だね。私も毎日それをやっているよ","何が見えたかは関係ない。「見ていた」という事実が、一枚の挿絵になる"],"窓の外を、ずっと眺めていた。雲が動くのと同じ速さで、時間も動いた。"]]],
+["s","……ふむ。物語にするほどでもない、と君は言いたいだろうけど\n私に言わせれば、これは立派に「物語にするほど」のものだよ","m"],
+["bg","win",1],["s","最後は夜だね。今日の終わりに、君は何をしていた？"],
+["bg","win",2],
+["c","夜",[
+ ["「動画を見ているうちに寝ていました」","休む",["動画を見ながら眠る。それは今日という本を、そっと閉じる儀式だね","誰かの声に包まれて眠るのは、悪くない終わり方だよ"],"夜は、誰かの声を聞きながら眠りに落ちた。今日はそっと、閉じられた。"],
+ ["「何もできなかった自分が、少し嫌でした」","気づく",["……そうか。その気持ちも、ちゃんとここに置いていこう","ただね、「何もできなかった」と数える君は、ずっと今日を見つめていたんだ。それは、何もしていない人のすることじゃないよ","その一行も、消さずに綴じておくよ。消すと、物語が嘘になるからね"],"何もできなかったと、少しだけ思った。それでも一日は、ちゃんと終わろうとしていた。"],
+ ["「ただ、何も考えずに眠りました」","流れる",["何も考えずに眠る。それが一番むずかしいことなんだよ","頭を空にできた夜は、白紙のページのように美しい"],"何も考えずに、眠った。空白のページは、それだけで穏やかだった。"]]],
+["s","ありがとう。材料は揃ったよ。少し待っていてくれ。……実はね、ここが私の一番好きな仕事なんだ","m"],
+["bg","shop"],["fx"],
+["s","「今日」というのは、書いてみないと形がわからない。でも、書いてみると、たいてい悪くない形をしている","m"],
+["bg","win",2],["s","できたよ。見てごらん"],["book"]
+];
+const T={"休む":["やすみ、という名の一日","休むことを、私は一番まじめな仕事だと思っているよ"],"流れる":["何も起きなかった日","何も起きない。それが、どれほどありがたいことか"],"気づく":["白いページの、すみっこ","余白に気づける人は、きっと世界をよく読んでいるよ"]};
+const tx=document.getElementById("tx"),nm=document.getElementById("nm"),ch=document.getElementById("ch"),mk=document.getElementById("mk"),box=document.getElementById("box");
+let q=[],busy=false,typing=null,full="",tags=[],chap=[],lock=false;
+function say(who,t,sm){nm.textContent=who;nm.style.display=who?"":"none";smile=!!sm;full=t;tx.textContent="";mk.style.display="none";let i=0;
+ typing=setInterval(()=>{tx.textContent=full.slice(0,++i);if(i>=full.length)done()},28)}
+function done(){clearInterval(typing);typing=null;tx.textContent=full;mk.style.display=""}
+function next(){
+ if(lock)return;
+ if(typing){done();return}
+ const it=q.shift();if(!it)return;
+ switch(it[0]){
+  case"bg":bg=it[1];if(it[2]!==undefined)tm=it[2];return next();
+  case"n":say("",it[1]);break;
+  case"s":say("綴",it[1],it[2]);break;
+  case"c":choose(it);break;
+  case"fx":lock=true;say("","綴が本棚の奥へ歩いていく。三枚のページが、空中で重なっていく。");
+   let k=0;const iv=setInterval(()=>{bind=Math.min(1,k+=0.02);if(bind>=1){clearInterval(iv);lock=false;done()}},50);break;
+  case"book":book();break;
+  case"end":theEnd(it[1],it[2]);break}
+}
+function choose(it){
+ lock=true;mk.style.display="none";ch.innerHTML="";
+ it[2].forEach(o=>{const b=document.createElement("button");b.textContent=o[0];
+  b.onclick=e=>{e.stopPropagation();ch.innerHTML="";lock=false;
+   if(it[1]){tags.push(o[1]);chap.push(o[3])}
+   q.unshift(...o[2].map((l,i)=>["s",l,i===o[2].length-1]));next()};ch.appendChild(b)});
+ tx.textContent=""
+}
+box.addEventListener("click",next);
+document.addEventListener("keydown",e=>{if(e.key===" "||e.key==="Enter"){if(document.activeElement.tagName==="BUTTON"||document.activeElement.tagName==="INPUT")return;e.preventDefault();next()}});
+
+function book(){
+ lock=true;const m={};tags.forEach(t=>m[t]=(m[t]||0)+1);
+ let top=tags[2];Object.keys(m).forEach(t=>{if(m[t]>m[top])top=t});
+ const [title,line]=T[top];
+ const pages=[`<h2>${title}</h2><p style="text-align:center">— ある一日の記録 —</p>`,...chap.map((c,i)=>`<p>${c}</p>`)];
+ let i=0;const pg=document.getElementById("pg"),bk=document.getElementById("bk");bk.style.display="flex";
+ function render(){
+  if(i<pages.length){pg.innerHTML=pages[i]+`<button id="nx">${i<pages.length-1?"ページをめくる":"あとがきへ"}</button>`;
+   document.getElementById("nx").onclick=()=>{i++;render()}}
+  else{pg.innerHTML=`<p>あとがき</p><input id="af" maxlength="20" placeholder="一言だけ。空白でも大丈夫です"><button id="nx">綴じる</button>`;
+   const af=document.getElementById("af");af.focus();
+   document.getElementById("nx").onclick=()=>{const v=af.value.trim();bk.style.display="none";lock=false;ending(v,line,title)}}
+ }
+ render();
+}
+function ending(v,line,title){
+ const L=[["s",line,true],
+  v?["s","……いい一言だね。確かに綴じたよ",true]:["s","何も書かない、か。いい選択だよ。この本には、まだ余白が残っているということだ",true],
+  ["s","さて、本は君のものだ。持って帰っていい"],
+  ["s","また、何でもない日が来たら寄るといい。私はここにいるからね。誰にも借りられないまま、ずっと\n……いや、違うな。君に借りてもらうために、いるんだ"],
+  ["s","さようなら、私の大切な読者さん","m"],
+  ["bg","shop"],["n","目を覚ますと、いつもの部屋だった。\n胸のあたりに、薄い本のような重みが、まだ残っている。"],
+  ["n","物語にするほどでもない今日が、少しだけ、私の味方になっていた。"],["end",title,v]];
+ q=L;next();
+}
+function theEnd(t,v){bg="shop";bind=0;lock=true;nm.style.display="none";
+ tx.innerHTML=`『${t}』\n${v?"あとがき：「"+v.replace(/</g,"&lt;")+"」\n":""}\n— END —\n\n`;mk.style.display="none";ch.innerHTML="";
+ const b=document.createElement("button");b.textContent="もう一度、今日を綴る";b.onclick=e=>{e.stopPropagation();start()};ch.appendChild(b)}
+function start(){q=S.map(a=>a.slice());tags=[];chap=[];lock=false;bg="door";bind=0;tm=0;ch.innerHTML="";nm.style.display="none";
+ tx.textContent="";mk.style.display="";full="";typing=null;next()}
+tx.textContent="物語にするほどでもない今日を\nA Story for a Nothing Day";nm.style.display="none";
+const sb=document.createElement("button");sb.textContent="はじめる";sb.onclick=e=>{e.stopPropagation();start()};ch.appendChild(sb);mk.style.display="none";
+</script>
+</body>
+</html>
